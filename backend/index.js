@@ -12,7 +12,7 @@ server.use("/api/user", userRouter);
 server.use("/api/blog", blogRouter);
 mongoose
   .connect(
-    "mongodb+srv://adminkrish:ZAHlEoaUdH7QeooI@cluster0.surpf9r.mongodb.net/Blog-app-mern?retryWrites=true&w=majority"
+    "mongodb+srv://test:password@cluster0.surpf9r.mongodb.net/Blog-app-mern?retryWrites=true&w=majority"
   )
   .then(() => {
     server.listen(5000);
