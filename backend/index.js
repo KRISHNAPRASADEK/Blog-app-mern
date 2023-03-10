@@ -1,9 +1,11 @@
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import blogRouter from "./routes/blog-routes";
 import userRouter from "./routes/user-routes";
 
 const server = express();
+server.use(cors());
 
 server.use(express.json());
 // parse the data to json format
@@ -12,7 +14,7 @@ server.use("/api/user", userRouter);
 server.use("/api/blog", blogRouter);
 mongoose
   .connect(
-    "mongodb+srv://test:password@cluster0.surpf9r.mongodb.net/Blog-app-mern?retryWrites=true&w=majority"
+    "mongodb+srv://test:test@cluster0.surpf9r.mongodb.net/Blog-app-mern?retryWrites=true&w=majority"
   )
   .then(() => {
     server.listen(5000);
