@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   AppBar,
   Box,
@@ -8,14 +8,32 @@ import {
   Tabs,
   Tab,
 } from "@mui/material";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { authActions } from "../store";
+import { authActions, isSignupActions, linkValueActions } from "../store";
 
 const Header = () => {
+  const {pathname} = useLocation();
+  console.log(pathname)
   const dispatch = useDispatch();
   const [value, setvalue] = useState(0);
-  const isLoggedIn = useSelector((state) => state.isLoggedIn);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  
+  const val = useSelector((state) => state.link.value);
+  
+  
+
+  useEffect(() => {
+    if(localStorage.getItem("userId")){
+      dispatch(authActions.login())
+    }
+    if(pathname=="/blogs/add"){
+      dispatch(linkValueActions.addBlog())
+    }else if(pathname=="/myBlogs"){
+      dispatch(linkValueActions.myBlog())
+    }
+    setvalue(val)
+  }, [])
 
   return (
     <AppBar position="sticky" sx={{ background: "#f60661" }}>
@@ -32,6 +50,7 @@ const Header = () => {
             >
               <Tab label="All Blogs" LinkComponent={Link} to="/blogs" />
               <Tab label="My Blogs" LinkComponent={Link} to="/myBlogs" />
+              <Tab label="Add Blog" LinkComponent={Link} to="/blogs/add" />
             </Tabs>
           </Box>
         )}
@@ -39,8 +58,9 @@ const Header = () => {
           {!isLoggedIn && (
             <>
               <Button
+                onClick={() => dispatch(isSignupActions.login())}
                 LinkComponent={Link}
-                to="/auth"
+                to="/"
                 variant="contained"
                 sx={{ margin: 1, borderRadius: 10 }}
                 color="error"
@@ -48,8 +68,9 @@ const Header = () => {
                 Login
               </Button>
               <Button
+                onClick={() => dispatch(isSignupActions.signup())}
                 LinkComponent={Link}
-                to="/auth"
+                to="/"
                 variant="contained"
                 sx={{ margin: 1, borderRadius: 10 }}
                 color="error"
@@ -61,9 +82,12 @@ const Header = () => {
 
           {isLoggedIn && (
             <Button
-              onClick={() => dispatch(authActions.logout())}
+              onClick={() =>{
+                 localStorage.clear()
+                 dispatch(authActions.logout())
+              }}
               LinkComponent={Link}
-              to="/auth"
+              to="/"
               variant="contained"
               sx={{ margin: 1, borderRadius: 10 }}
               color="error"

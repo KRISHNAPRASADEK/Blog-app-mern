@@ -5,7 +5,7 @@ import User from "../model/User";
 export const getAllBlogs = async (req, res, next) => {
   let blogs;
   try {
-    blogs = await Blog.find();
+    blogs = await Blog.find().populate("user");
   } catch (error) {
     return console.log(error);
   }
@@ -55,13 +55,14 @@ export const addBlog = async (req, res, next) => {
 
 export const updateBlog = async (req, res, next) => {
   const blogId = req.params.id;
-  const { title, description } = req.body;
+  const { title, description,image } = req.body;
   let blog;
 
   try {
     blog = await Blog.findByIdAndUpdate(blogId, {
       title,
       description,
+      image
     });
   } catch (error) {
     return console.log(error);
@@ -121,6 +122,6 @@ export const getBlogsByUserId = async (req, res, next) => {
   if (!userBlogs) {
     return res.status(404).json({ message: "No blogs found" });
   } else {
-    return res.status(200).json({ blogs: userBlogs });
+    return res.status(200).json({ user: userBlogs });
   }
 };

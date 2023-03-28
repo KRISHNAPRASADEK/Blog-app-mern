@@ -11,3 +11,5 @@ Features:
 - Can update and delete the blogs
 - Can see blogs of all users
 - In backend established relationship between two collections in MongoDB
+- Used Redux, Redux Toolkit for states management
+- Axios used for api requests in front end

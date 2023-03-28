@@ -1,19 +1,22 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import axios from "axios";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { authActions } from "../store";
+import { isSignupActions } from "../store";
 
 const Auth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [isSignup, setIsSignup] = useState(false);
+  const isSignup = useSelector((state) => state.sign.isSignup);
+  console.log(isSignup);
   const [inputs, setinputs] = useState({
     name: "",
     email: "",
     password: "",
   });
+  
 
   const handleChange = (e) => {
     setinputs((prevState) => ({
@@ -35,6 +38,7 @@ const Auth = () => {
       });
 
     const data = await res.data;
+
     return data;
   };
 
@@ -43,12 +47,15 @@ const Auth = () => {
     console.log(inputs);
     if (isSignup) {
       sendRequest("signup")
-        .then((data) => console.log(data))
+        .then((data) => {
+          console.log(data.user._id);
+          localStorage.setItem("userId",data.user._id)
+        })
         .then(() => dispatch(authActions.login()))
         .then(() => navigate("/blogs"));
     } else {
       sendRequest()
-        .then((data) => console.log(data))
+        .then((data) => localStorage.setItem("userId",data.user._id))
         .then(() => dispatch(authActions.login()))
         .then(() => navigate("/blogs"));
     }
@@ -108,12 +115,19 @@ const Auth = () => {
           >
             Submit
           </Button>
-          <Button
-            onClick={() => setIsSignup(!isSignup)}
+          {isSignup?<Button
+            onClick={() => dispatch(isSignupActions.login())}
             sx={{ borderRadius: 3, marginTop: 3 }}
           >
-            Click here for {isSignup ? "Login" : "Signup"}
-          </Button>
+            Click here for Login
+          </Button>:
+          <Button
+          onClick={() => dispatch(isSignupActions.signup())}
+          sx={{ borderRadius: 3, marginTop: 3 }}
+        >
+          Click here for Signup
+        </Button>
+          }
         </Box>
       </form>
     </div>
