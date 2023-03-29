@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
 import Auth from "./components/Auth";
@@ -6,10 +6,8 @@ import Blogs from "./components/Blogs";
 import UserBlogs from "./components/UserBlogs";
 import BlogDetail from "./components/BlogDetail";
 import AddBlog from "./components/AddBlog";
-import { useSelector } from "react-redux";
 
 function App() {
-  const isLoggedIn = useSelector((state) => state.isLoggedIn);
   return (
     <>
       <header>
@@ -17,8 +15,8 @@ function App() {
       </header>
       <main>
         <Routes>
-         <Route path="/"  element={<Auth />} />
-         <Route path="/blogs" element={<Blogs />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/" element={<Blogs />} />
           <Route path="/blogs/add" element={<AddBlog />} />
           <Route path="/myBlogs" element={<UserBlogs />} />
           <Route path="/myBlogs/:id" element={<BlogDetail />} />
@@ -30,7 +28,6 @@ function App() {
               </h1>
             }
           />
-         
         </Routes>
       </main>
     </>

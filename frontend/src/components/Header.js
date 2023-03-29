@@ -13,34 +13,48 @@ import { useDispatch, useSelector } from "react-redux";
 import { authActions, isSignupActions, linkValueActions } from "../store";
 
 const Header = () => {
-  const {pathname} = useLocation();
-  console.log(pathname)
   const dispatch = useDispatch();
   const [value, setvalue] = useState(0);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  
+
   const val = useSelector((state) => state.link.value);
-  
-  
+
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    if(localStorage.getItem("userId")){
-      dispatch(authActions.login())
+    if (pathname.includes("myBlogs")) {
+      dispatch(linkValueActions.myBlog());
+    } else if (pathname.includes("blogs/add")) {
+      dispatch(linkValueActions.addBlog());
+    } else if (pathname.includes("blogs")) {
+      dispatch(linkValueActions.allBlog());
     }
-    if(pathname=="/blogs/add"){
-      dispatch(linkValueActions.addBlog())
-    }else if(pathname=="/myBlogs"){
-      dispatch(linkValueActions.myBlog())
+  }, [pathname]);
+
+  useEffect(() => {
+    setvalue(val);
+  }, [val]);
+
+  useEffect(() => {
+    if (localStorage.getItem("userId")) {
+      dispatch(authActions.login());
     }
-    setvalue(val)
-  }, [])
+    setvalue(val);
+  }, []);
 
   return (
-    <AppBar position="sticky" sx={{ background: "#f60661" }}>
+    <AppBar position="sticky" sx={{ background: "#6495ED" }}>
       <Toolbar>
-        <Typography variant="h4">BlogsApp</Typography>
+        <Button variant="text" LinkComponent={Link} to="/">
+          <h1 id="logo">CODER's Blogs</h1>
+        </Button>
         {isLoggedIn && (
-          <Box display="flex" marginLeft="auto" marginRight="auto">
+          <Box
+            sx={{ background: "#6495ED" }}
+            display="flex"
+            marginLeft="auto"
+            marginRight="auto"
+          >
             <Tabs
               textColor="inherit"
               value={value}
@@ -48,19 +62,19 @@ const Header = () => {
                 setvalue(val);
               }}
             >
-              <Tab label="All Blogs" LinkComponent={Link} to="/blogs" />
+              <Tab label="All Blogs" LinkComponent={Link} to="/" />
               <Tab label="My Blogs" LinkComponent={Link} to="/myBlogs" />
               <Tab label="Add Blog" LinkComponent={Link} to="/blogs/add" />
             </Tabs>
           </Box>
         )}
-        <Box display="flex" marginLeft="auto">
+        <Box sx={{ background: "#6495ED" }} display="flex" marginLeft="auto">
           {!isLoggedIn && (
             <>
               <Button
                 onClick={() => dispatch(isSignupActions.login())}
                 LinkComponent={Link}
-                to="/"
+                to="/auth"
                 variant="contained"
                 sx={{ margin: 1, borderRadius: 10 }}
                 color="error"
@@ -70,7 +84,7 @@ const Header = () => {
               <Button
                 onClick={() => dispatch(isSignupActions.signup())}
                 LinkComponent={Link}
-                to="/"
+                to="/auth"
                 variant="contained"
                 sx={{ margin: 1, borderRadius: 10 }}
                 color="error"
@@ -82,9 +96,9 @@ const Header = () => {
 
           {isLoggedIn && (
             <Button
-              onClick={() =>{
-                 localStorage.clear()
-                 dispatch(authActions.logout())
+              onClick={() => {
+                localStorage.clear();
+                dispatch(authActions.logout());
               }}
               LinkComponent={Link}
               to="/"

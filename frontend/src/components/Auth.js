@@ -1,73 +1,108 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { authActions } from "../store";
 import { isSignupActions } from "../store";
+import { useForm } from "react-hook-form";
 
 const Auth = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isSignup = useSelector((state) => state.sign.isSignup);
-  console.log(isSignup);
-  const [inputs, setinputs] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
-  
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
-  const handleChange = (e) => {
-    setinputs((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const onSubmit = (inputs, e) => {
+    setLoading(true);
+    e.preventDefault();
 
-  // api request for login
-  const sendRequest = async (type = "login") => {
-    const res = await axios
-      .post(`http://localhost:5000/api/user/${type}`, {
+    const sendRequest = async (type = "login") => {
+      const res = await axios.post(`http://localhost:5000/api/user/${type}`, {
         name: inputs.name,
         email: inputs.email,
         password: inputs.password,
-      })
-      .catch((err) => {
-        console.log(err);
       });
+      const data = await res.data;
+      return data;
+    };
 
-    const data = await res.data;
-
-    return data;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(inputs);
     if (isSignup) {
       sendRequest("signup")
         .then((data) => {
+          setLoading(false);
           console.log(data.user._id);
-          localStorage.setItem("userId",data.user._id)
+          localStorage.setItem("userId", data.user._id);
         })
         .then(() => dispatch(authActions.login()))
-        .then(() => navigate("/blogs"));
+        .then(() => navigate("/"))
+        .then(() => {
+          reset();
+        })
+        .catch((err) => {
+          error(err);
+        });
     } else {
       sendRequest()
-        .then((data) => localStorage.setItem("userId",data.user._id))
+        .then((data) => {
+          setLoading(false);
+          localStorage.setItem("userId", data.user._id);
+        })
         .then(() => dispatch(authActions.login()))
-        .then(() => navigate("/blogs"));
+        .then(() => navigate("/"))
+        .then(() => {
+          reset();
+        })
+        .catch((err) => {
+          error(err);
+        });
     }
   };
+
+  useEffect(() => {
+    reset();
+  }, [isSignup]);
+
+  const error = (err) => {
+    setLoading(false);
+    if (err.response) {
+      // The client was given an error response (5xx, 4xx)
+      setErrorMsg(err.response.data.message);
+      reset();
+    } else if (err.request) {
+      // The client never received a response, and the request was never left
+      setErrorMsg("Server Busy Try Again");
+      console.log(err.request);
+    } else {
+      // Anything else
+      setErrorMsg("Server Busy Try Again");
+      console.log(err);
+    }
+  };
+
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Box
           maxWidth={400}
           display="flex"
           flexDirection="column"
-          alignItems="center"
+          // alignItems="center"
           justifyContent="center"
           sx={{ boxShadow: 5 }}
           padding={3}
@@ -84,50 +119,72 @@ const Auth = () => {
               placeholder="Name"
               margin="normal"
               sx={{ width: 1 }}
-              value={inputs.name}
               name="name"
-              onChange={handleChange}
+              {...register("name", {
+                required: true,
+                maxLength: 10,
+                minLength: 4,
+                pattern: /^([a-zA-Z]*)$/,
+              })}
             />
+          )}
+          {errors.name && isSignup && (
+            <p className="form-input-error">Please check the Name</p>
           )}
           <TextField
             type="email"
             placeholder="Email"
             margin="normal"
             sx={{ width: 1 }}
-            value={inputs.email}
             name="email"
-            onChange={handleChange}
+            {...register("email", {
+              required: true,
+              pattern:
+                /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+            })}
           />
+          {errors.email && (
+            <p className="form-input-error">Please check the Email</p>
+          )}
+
           <TextField
             type="password"
             placeholder="Password"
             margin="normal"
             sx={{ width: 1 }}
-            value={inputs.password}
             name="password"
-            onChange={handleChange}
+            {...register("password", {
+              required: true,
+              pattern: /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,15}$/,
+            })}
           />
+          {errors.password && (
+            <p className="form-input-error">Please check the Password</p>
+          )}
+          {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
           <Button
             type="submit"
             variant="contained"
             sx={{ borderRadius: 3, marginTop: 3 }}
             color="error"
           >
-            Submit
+            Submit &nbsp; {loading && <CircularProgress color="inherit" />}
           </Button>
-          {isSignup?<Button
-            onClick={() => dispatch(isSignupActions.login())}
-            sx={{ borderRadius: 3, marginTop: 3 }}
-          >
-            Click here for Login
-          </Button>:
-          <Button
-          onClick={() => dispatch(isSignupActions.signup())}
-          sx={{ borderRadius: 3, marginTop: 3 }}
-        >
-          Click here for Signup
-        </Button>
-          }
+          {isSignup ? (
+            <Button
+              onClick={() => dispatch(isSignupActions.login())}
+              sx={{ borderRadius: 3, marginTop: 3 }}
+            >
+              Click here for Login
+            </Button>
+          ) : (
+            <Button
+              onClick={() => dispatch(isSignupActions.signup())}
+              sx={{ borderRadius: 3, marginTop: 3 }}
+            >
+              Click here for Signup
+            </Button>
+          )}
         </Box>
       </form>
     </div>

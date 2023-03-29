@@ -2,3 +2,9 @@
 * {
   margin: 0;
 }
+body{
+  background-color: #d0e6e9	;	
+}
+.MuiBox-root{
+  background-color: #fff;
+}

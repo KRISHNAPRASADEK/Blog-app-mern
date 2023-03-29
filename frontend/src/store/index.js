@@ -14,7 +14,6 @@ const authSlice = createSlice({
   },
 });
 
-
 const isSignupSlice = createSlice({
   name: "isSignup",
   initialState: { isSignup: false },
@@ -46,9 +45,21 @@ const linkValueSlice = createSlice({
   },
 });
 
+const deleteSlice = createSlice({
+  name: "isDelete",
+  initialState: { isDelete: false },
+  // action creators
+  reducers: {
+    delete(state) {
+      state.isDelete = !state.isDelete;
+    },
+  },
+});
+
 export const authActions = authSlice.actions;
 export const isSignupActions = isSignupSlice.actions;
 export const linkValueActions = linkValueSlice.actions;
+export const deleteSliceActions = deleteSlice.actions;
 
 // now we need to export reducer function which handle the states of the store
 export const store = configureStore({
@@ -56,5 +67,6 @@ export const store = configureStore({
     auth: authSlice.reducer,
     sign: isSignupSlice.reducer,
     link: linkValueSlice.reducer,
+    delete: deleteSlice.reducer,
   },
 });
