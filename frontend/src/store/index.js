@@ -42,6 +42,9 @@ const linkValueSlice = createSlice({
     addBlog(state) {
       state.value = 2;
     },
+    profile(state) {
+      state.value = 3;
+    },
   },
 });
 

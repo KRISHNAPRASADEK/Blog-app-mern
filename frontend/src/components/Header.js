@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
-import {
-  AppBar,
-  Box,
-  Button,
-  Toolbar,
-  Typography,
-  Tabs,
-  Tab,
-} from "@mui/material";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { AppBar, Box, Button, Toolbar, Tabs, Tab } from "@mui/material";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { authActions, isSignupActions, linkValueActions } from "../store";
+import {
+  authActions,
+  deleteSliceActions,
+  isSignupActions,
+  linkValueActions,
+} from "../store";
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -28,6 +25,8 @@ const Header = () => {
       dispatch(linkValueActions.addBlog());
     } else if (pathname.includes("blogs")) {
       dispatch(linkValueActions.allBlog());
+    } else if (pathname.includes("user")) {
+      dispatch(linkValueActions.profile());
     }
   }, [pathname]);
 
@@ -43,7 +42,7 @@ const Header = () => {
   }, []);
 
   return (
-    <AppBar position="sticky" sx={{ background: "#6495ED" }}>
+    <AppBar position="fixed" sx={{ background: "#6495ED" }}>
       <Toolbar>
         <Button variant="text" LinkComponent={Link} to="/">
           <h1 id="logo">CODER's Blogs</h1>
@@ -65,6 +64,7 @@ const Header = () => {
               <Tab label="All Blogs" LinkComponent={Link} to="/" />
               <Tab label="My Blogs" LinkComponent={Link} to="/myBlogs" />
               <Tab label="Add Blog" LinkComponent={Link} to="/blogs/add" />
+              <Tab label="Profile" LinkComponent={Link} to="/user/1" />
             </Tabs>
           </Box>
         )}
@@ -77,7 +77,7 @@ const Header = () => {
                 to="/auth"
                 variant="contained"
                 sx={{ margin: 1, borderRadius: 10 }}
-                color="error"
+                color="primary"
               >
                 Login
               </Button>
@@ -87,7 +87,7 @@ const Header = () => {
                 to="/auth"
                 variant="contained"
                 sx={{ margin: 1, borderRadius: 10 }}
-                color="error"
+                color="primary"
               >
                 Signup
               </Button>
@@ -99,12 +99,13 @@ const Header = () => {
               onClick={() => {
                 localStorage.clear();
                 dispatch(authActions.logout());
+                dispatch(deleteSliceActions.delete());
               }}
               LinkComponent={Link}
               to="/"
               variant="contained"
               sx={{ margin: 1, borderRadius: 10 }}
-              color="error"
+              color="primary"
             >
               Logout
             </Button>

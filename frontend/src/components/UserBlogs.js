@@ -44,6 +44,8 @@ const UserBlogs = () => {
             description={blog.description}
             image={blog.image}
             userName={user.name}
+            date={blog.date}
+            likes={blog.likes}
           />
         ))}
     </div>

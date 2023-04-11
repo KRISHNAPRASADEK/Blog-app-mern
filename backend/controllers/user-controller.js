@@ -32,13 +32,17 @@ export const signup = async (req, res, next) => {
       email,
       password: hashedPassword,
       blogs: [],
+      followers: [],
+      following: [],
     });
     try {
       await user.save();
     } catch (error) {
       return console.log(error);
     }
-    return res.status(201).json({ message: `${name} account is created`,user });
+    return res
+      .status(201)
+      .json({ message: `${name} account is created`, user });
   }
 };
 
@@ -64,5 +68,68 @@ export const login = async (req, res, next) => {
         .status(200)
         .json({ message: "Login success", user: existingUser });
     }
+  }
+};
+
+export const followUser = async (req, res, next) => {
+  const userId = req.params.id;
+  const { followerId } = req.body;
+  let user;
+
+  try {
+    user = await User.findByIdAndUpdate(
+      userId,
+      {
+        $push: { followers: followerId },
+      },
+      { safe: true, upsert: true }
+    ).populate("followers");
+  } catch (error) {
+    return console.log(error);
+  }
+
+  if (!user) {
+    return res.status(500).json({ message: "unable to follow the user" });
+  } else {
+    try {
+      user = await User.findByIdAndUpdate(
+        followerId,
+        {
+          $push: { following: userId },
+        },
+        { safe: true, upsert: true }
+      ).populate("following");
+    } catch (error) {
+      return console.log(error);
+    }
+
+    if (!user) {
+      return res.status(500).json({ message: "unable to follow the user" });
+    } else {
+      return res.status(200).json({ message: "followed successfully", user });
+    }
+  }
+};
+
+export const getUserById = async (req, res, next) => {
+  const userId = req.params.id;
+
+  let user;
+  try {
+    user = await User.findById(userId)
+      .populate("followers")
+      .populate("following")
+      .populate({
+        path: "blogs",
+        populate: { path: "likes" },
+      });
+  } catch (error) {
+    return console.log(error);
+  }
+
+  if (!user) {
+    return res.status(404).json({ message: "No User found" });
+  } else {
+    return res.status(200).json({ user });
   }
 };

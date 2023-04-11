@@ -27,12 +27,15 @@ const AddBlog = () => {
   };
 
   const sendRequest = async () => {
+    let date = Date().slice(0, 15);
     const res = await axios
       .post("http://localhost:5000/api/blog/add", {
         title: inputs.title,
         description: inputs.description,
         image: inputs.imageURL,
         user: localStorage.getItem("userId"),
+        date: date,
+        likes: [],
       })
       .catch((err) => console.log(err));
 

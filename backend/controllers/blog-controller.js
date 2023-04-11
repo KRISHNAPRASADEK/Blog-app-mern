@@ -5,7 +5,7 @@ import User from "../model/User";
 export const getAllBlogs = async (req, res, next) => {
   let blogs;
   try {
-    blogs = await Blog.find().populate("user");
+    blogs = await Blog.find().populate("user").populate("likes");
   } catch (error) {
     return console.log(error);
   }
@@ -17,7 +17,7 @@ export const getAllBlogs = async (req, res, next) => {
 };
 
 export const addBlog = async (req, res, next) => {
-  const { title, description, image, user } = req.body;
+  const { title, description, image, user, date } = req.body;
 
   let existingUser;
   try {
@@ -36,6 +36,8 @@ export const addBlog = async (req, res, next) => {
       description,
       image,
       user,
+      date,
+      likes: [],
     });
 
     try {
@@ -55,14 +57,14 @@ export const addBlog = async (req, res, next) => {
 
 export const updateBlog = async (req, res, next) => {
   const blogId = req.params.id;
-  const { title, description,image } = req.body;
+  const { title, description, image } = req.body;
   let blog;
 
   try {
     blog = await Blog.findByIdAndUpdate(blogId, {
       title,
       description,
-      image
+      image,
     });
   } catch (error) {
     return console.log(error);
@@ -72,6 +74,56 @@ export const updateBlog = async (req, res, next) => {
     return res.status(500).json({ message: "unable to update the blog" });
   } else {
     return res.status(200).json({ message: "blog updated successfully" });
+  }
+};
+
+export const likeBlog = async (req, res, next) => {
+  const blogId = req.params.id;
+  const { user } = req.body;
+  let blog;
+
+  try {
+    blog = await Blog.findByIdAndUpdate(
+      blogId,
+      {
+        $push: { likes: user },
+      },
+      { safe: true, upsert: true }
+    ).populate("likes");
+  } catch (error) {
+    return console.log(error);
+  }
+
+  if (!blog) {
+    return res.status(500).json({ message: "unable to like the blog" });
+  } else {
+    return res.status(200).json({ message: "blog liked successfully", blog });
+  }
+};
+
+export const disLikeBlog = async (req, res, next) => {
+  const blogId = req.params.id;
+  const { user } = req.body;
+  let blog;
+
+  try {
+    blog = await Blog.findByIdAndUpdate(
+      blogId,
+      {
+        $pull: { likes: user },
+      },
+      { safe: true, upsert: true }
+    ).populate("likes");
+  } catch (error) {
+    return console.log(error);
+  }
+
+  if (!blog) {
+    return res.status(500).json({ message: "unable to remove like from blog" });
+  } else {
+    return res
+      .status(200)
+      .json({ message: "blog like removed successfully", blog });
   }
 };
 
@@ -114,7 +166,10 @@ export const getBlogsByUserId = async (req, res, next) => {
 
   let userBlogs;
   try {
-    userBlogs = await User.findById(userId).populate("blogs");
+    userBlogs = await User.findById(userId).populate({
+      path: "blogs",
+      populate: { path: "likes" },
+    });
   } catch (error) {
     return console.log(error);
   }

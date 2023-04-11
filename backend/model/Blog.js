@@ -20,6 +20,17 @@ const blogSchema = new Schema({
     ref: "User",
     required: true,
   },
+  date: {
+    type: String,
+    required: true,
+  },
+  likes: [
+    {
+      type: mongoose.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  ],
 });
 
 export default mongoose.model("Blog", blogSchema);

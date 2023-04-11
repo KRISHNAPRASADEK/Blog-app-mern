@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Blog from "./Blog";
+import { useSelector } from "react-redux";
 
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
+  const isDelete = useSelector((state) => state.delete.isDelete);
+  console.log(isDelete);
   // api request for all blogs
   const sendRequest = async () => {
     const res = await axios
@@ -15,6 +18,11 @@ const Blogs = () => {
     const data = await res.data;
     return data;
   };
+
+  useEffect(() => {
+    sendRequest().then((data) => setBlogs(data.blogs));
+  }, [isDelete]);
+
   useEffect(() => {
     sendRequest().then((data) => setBlogs(data.blogs));
   }, []);
@@ -25,12 +33,14 @@ const Blogs = () => {
         blogs.map((blog, index) => (
           <Blog
             id={blog._id}
-            isUser={localStorage.getItem("userId")===blog.user._id}
+            isUser={localStorage.getItem("userId") === blog.user._id}
             key={index}
             title={blog.title}
             description={blog.description}
             image={blog.image}
             userName={blog.user.name}
+            date={blog.date}
+            likes={blog.likes}
           />
         ))}
     </div>

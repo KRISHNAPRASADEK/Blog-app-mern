@@ -6,11 +6,12 @@ import Blogs from "./components/Blogs";
 import UserBlogs from "./components/UserBlogs";
 import BlogDetail from "./components/BlogDetail";
 import AddBlog from "./components/AddBlog";
+import Profile from "./components/Profile";
 
 function App() {
   return (
     <>
-      <header>
+      <header style={{ marginBottom: "5rem" }}>
         <Header />
       </header>
       <main>
@@ -20,10 +21,11 @@ function App() {
           <Route path="/blogs/add" element={<AddBlog />} />
           <Route path="/myBlogs" element={<UserBlogs />} />
           <Route path="/myBlogs/:id" element={<BlogDetail />} />
+          <Route path="/user/:id" element={<Profile />} />
           <Route
             path="*"
             element={
-              <h1 style={{ marginTop: "100px", textAlign: "center" }}>
+              <h1 style={{ marginTop: "200px", textAlign: "center" }}>
                 Page Not Found/Inavalid Link
               </h1>
             }

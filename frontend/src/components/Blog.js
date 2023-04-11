@@ -1,4 +1,5 @@
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -9,11 +10,22 @@ import {
   CardMedia,
   Collapse,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText,
+  Stack,
   Typography,
 } from "@mui/material";
-import { red } from "@mui/material/colors";
-import React, { useState } from "react";
+import { blue } from "@mui/material/colors";
+import React, { useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -22,13 +34,46 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { deleteSliceActions } from "../store";
+import PersonIcon from "@mui/icons-material/Person";
 
-const Blog = ({ title, description, image, userName, isUser, id }) => {
+const Blog = ({
+  title,
+  description,
+  image,
+  userName,
+  isUser,
+  id,
+  date,
+  likes,
+}) => {
   const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const [open2, setOpen2] = React.useState(false);
+  const [likeOpen, setLikeOpen] = React.useState(false);
+  const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  console.log(likes);
+  const isLiked = likes.some((i) => i._id == localStorage.getItem("userId"));
+
+  const handleClickOpen = () => {
+    setOpen2(true);
+  };
+
+  const handleClose = () => {
+    setOpen2(false);
+  };
+
+  const handleClickLikesOpen = () => {
+    setLikeOpen(true);
+  };
+
+  const handleLikesClose = () => {
+    setLikeOpen(false);
+  };
+
   const handleEdit = () => {
     navigate(`/myBlogs/${id}`);
   };
@@ -48,11 +93,55 @@ const Blog = ({ title, description, image, userName, isUser, id }) => {
         dispatch(deleteSliceActions.delete());
       });
   };
+
+  const likeThePostRequest = async () => {
+    const res = await axios
+      .put(`http://localhost:5000/api/blog/like/${id}`, {
+        user: localStorage.getItem("userId"),
+      })
+      .catch((err) => console.log(err));
+    const data = await res.data;
+    return data;
+  };
+
+  const likeTheBlog = () => {
+    likeThePostRequest()
+      .then((data) => console.log(data))
+      .then(() => navigate("/myBlogs"))
+      .then(() => {
+        navigate("");
+        dispatch(deleteSliceActions.delete());
+      });
+  };
+
+  // dislike
+  const disLikeThePostRequest = async () => {
+    const res = await axios
+      .put(`http://localhost:5000/api/blog/dislike/${id}`, {
+        user: localStorage.getItem("userId"),
+      })
+      .catch((err) => console.log(err));
+    const data = await res.data;
+    return data;
+  };
+
+  const disLikeTheBlog = () => {
+    disLikeThePostRequest()
+      .then((data) => console.log(data))
+      .then(() => navigate("/myBlogs"))
+      .then(() => {
+        navigate("");
+        dispatch(deleteSliceActions.delete());
+      });
+  };
+
+  console.log(isLiked);
+
   return (
     <div>
       <Card
         sx={{
-          width: "40%",
+          width: "70%",
           margin: "auto",
           mt: 2,
           padding: 2,
@@ -64,15 +153,15 @@ const Blog = ({ title, description, image, userName, isUser, id }) => {
       >
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-              {userName.charAt(0)}
+            <Avatar sx={{ bgcolor: blue[500] }} aria-label="recipe">
+              {userName.charAt(0).toUpperCase()}
             </Avatar>
           }
           action={
             isUser && (
               <Box display="flex">
                 <IconButton onClick={handleEdit} sx={{ marginLeft: "auto" }}>
-                  <EditIcon color="warning" />
+                  <EditIcon color="info" />
                 </IconButton>
                 <IconButton onClick={handleDelete}>
                   <DeleteIcon color="error" />
@@ -80,30 +169,129 @@ const Blog = ({ title, description, image, userName, isUser, id }) => {
               </Box>
             )
           }
-          title={title}
-          subheader="September 14, 2016"
+          title={userName}
+          subheader={date}
         />
         <CardMedia
           component="img"
-          height="194"
+          height="260"
           image={image}
           alt="Paella dish"
+          sx={{ paddingBottom: "10px", borderBottom: "1px solid gray" }}
         />
-
         <CardContent>
-          <hr />
-          <br />
-          <Typography variant="body2" color="text.secondary">
-            <b>{userName}</b> : {description}
+          <Typography variant="h5" color="black">
+            {title}
           </Typography>
         </CardContent>
         <CardActions disableSpacing>
-          <IconButton aria-label="add to favorites">
-            <FavoriteIcon />
-          </IconButton>
-          <IconButton aria-label="share">
-            <ShareIcon />
-          </IconButton>
+          {isLoggedIn && (
+            <>
+              {isLiked ? (
+                <Button
+                  aria-label="remove from favorites"
+                  onClick={disLikeTheBlog}
+                  sx={{
+                    color: "red",
+                    textTransform: "none",
+                    minWidth: "36px",
+                  }}
+                >
+                  <FavoriteIcon />
+                </Button>
+              ) : (
+                <Button
+                  aria-label="add to favorites"
+                  onClick={likeTheBlog}
+                  sx={{
+                    color: "gray",
+                    textTransform: "none",
+                    minWidth: "36px",
+                  }}
+                >
+                  <FavoriteIcon />
+                </Button>
+              )}
+              <Button
+                sx={{ color: "gray", minWidth: "30px" }}
+                onClick={handleClickLikesOpen}
+              >
+                {likes.length}
+              </Button>
+
+              {/* liked users list dialog */}
+              <Dialog
+                open={likeOpen}
+                onClose={handleLikesClose}
+                aria-labelledby="alert-dialog-title"
+                aria-describedby="alert-dialog-description"
+                fullWidth={true}
+              >
+                <Alert
+                  severity="info"
+                  onClose={() => {
+                    handleLikesClose();
+                  }}
+                  sx={{ padding: "1rem", fontSize: "1rem" }}
+                >
+                  Likes
+                </Alert>
+                {likes.length ? (
+                  <List sx={{ pt: 0 }}>
+                    {likes.map((user) => (
+                      <ListItem disableGutters>
+                        <ListItemButton key={user._id}>
+                          <ListItemAvatar>
+                            <Avatar
+                              sx={{ bgcolor: blue[500] }}
+                              aria-label="recipe"
+                            >
+                              {user.name.charAt(0).toUpperCase()}
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ListItemText primary={user.name} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                ) : (
+                  <DialogTitle>0 Likes</DialogTitle>
+                )}
+              </Dialog>
+            </>
+          )}
+          {!isLoggedIn && (
+            <Button
+              aria-label="add to favorites"
+              sx={{
+                color: "gray",
+                textTransform: "none",
+                minWidth: "36px",
+              }}
+              onClick={handleClickOpen}
+            >
+              <FavoriteIcon /> &nbsp; {likes.length}
+            </Button>
+          )}
+
+          {/* please login alert */}
+          <Dialog
+            open={open2}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+            fullWidth="true"
+          >
+            <Alert
+              severity="error"
+              onClose={() => {
+                handleClose();
+              }}
+              sx={{ padding: "1rem", fontSize: "1rem" }}
+            >
+              Please Login, to like the post and see the likes!
+            </Alert>
+          </Dialog>
 
           <Button
             title="show more"
@@ -136,11 +324,7 @@ const Blog = ({ title, description, image, userName, isUser, id }) => {
                 lineHeight: 2,
               }}
             >
-              An interview-centric course designed to prepare you for the role
-              of SDE for both product and service-based companies. A placement
-              preparation pack built with years of expertise. Learn Resume
-              Building, C++, Java, DSA, CS Theory concepts, Aptitude, Reasoning,
-              LLD, and much more!
+              <p>{description}</p>
             </Container>
           </CardContent>
         </Collapse>
