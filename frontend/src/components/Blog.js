@@ -32,11 +32,10 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteSliceActions } from "../store";
-import PersonIcon from "@mui/icons-material/Person";
+import { deleteSliceActions, linkValueActions } from "../store";
 
 const Blog = ({
   title,
@@ -52,8 +51,8 @@ const Blog = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [open2, setOpen2] = React.useState(false);
-  const [likeOpen, setLikeOpen] = React.useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [likeOpen, setLikeOpen] = useState(false);
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   console.log(likes);
   const isLiked = likes.some((i) => i._id == localStorage.getItem("userId"));
@@ -76,6 +75,11 @@ const Blog = ({
 
   const handleEdit = () => {
     navigate(`/myBlogs/${id}`);
+  };
+
+  const viewUser = (id) => {
+    navigate(`/user/${id}`);
+    dispatch(deleteSliceActions.delete());
   };
   const deleteRequest = async () => {
     const res = await axios
@@ -136,6 +140,7 @@ const Blog = ({
   };
 
   console.log(isLiked);
+  console.log(isUser);
 
   return (
     <div>
@@ -223,8 +228,8 @@ const Blog = ({
               <Dialog
                 open={likeOpen}
                 onClose={handleLikesClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
+                aria-labelledby={`alert-dialog-title-${id}`}
+                aria-describedby={`alert-dialog-description-${id}`}
                 fullWidth={true}
               >
                 <Alert
@@ -240,7 +245,10 @@ const Blog = ({
                   <List sx={{ pt: 0 }}>
                     {likes.map((user) => (
                       <ListItem disableGutters>
-                        <ListItemButton key={user._id}>
+                        <ListItemButton
+                          key={user._id}
+                          onClick={() => viewUser(user._id)}
+                        >
                           <ListItemAvatar>
                             <Avatar
                               sx={{ bgcolor: blue[500] }}
@@ -324,7 +332,9 @@ const Blog = ({
                 lineHeight: 2,
               }}
             >
-              <p>{description}</p>
+              <Typography variant="body1" gutterBottom>
+                {description}
+              </Typography>
             </Container>
           </CardContent>
         </Collapse>

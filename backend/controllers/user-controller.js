@@ -34,6 +34,7 @@ export const signup = async (req, res, next) => {
       blogs: [],
       followers: [],
       following: [],
+      description: null,
     });
     try {
       await user.save();

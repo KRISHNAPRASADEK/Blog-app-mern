@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import Blog from "./Blog";
+import { Typography } from "@mui/material";
 
 const UserBlogs = () => {
   const [user, setUser] = useState();
@@ -48,6 +49,15 @@ const UserBlogs = () => {
             likes={blog.likes}
           />
         ))}
+      {user && user.blogs.length == 0 && (
+        <Typography
+          sx={{ display: "flex", justifyContent: "center", marginTop: "100px" }}
+          variant="h5"
+          gutterBottom
+        >
+          You haven't added any blogs yet
+        </Typography>
+      )}
     </div>
   );
 };

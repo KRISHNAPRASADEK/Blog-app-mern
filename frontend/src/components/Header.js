@@ -12,10 +12,10 @@ import {
 const Header = () => {
   const dispatch = useDispatch();
   const [value, setvalue] = useState(0);
+  const [id, setId] = useState();
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
 
   const val = useSelector((state) => state.link.value);
-
   const { pathname } = useLocation();
 
   useEffect(() => {
@@ -27,6 +27,7 @@ const Header = () => {
       dispatch(linkValueActions.allBlog());
     } else if (pathname.includes("user")) {
       dispatch(linkValueActions.profile());
+      setvalue(3);
     }
   }, [pathname]);
 
@@ -37,9 +38,16 @@ const Header = () => {
   useEffect(() => {
     if (localStorage.getItem("userId")) {
       dispatch(authActions.login());
+      setId(localStorage.getItem("userId"));
     }
     setvalue(val);
   }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem("userId")) {
+      setId(localStorage.getItem("userId"));
+    }
+  }, [isLoggedIn]);
 
   return (
     <AppBar position="fixed" sx={{ background: "#6495ED" }}>
@@ -64,7 +72,7 @@ const Header = () => {
               <Tab label="All Blogs" LinkComponent={Link} to="/" />
               <Tab label="My Blogs" LinkComponent={Link} to="/myBlogs" />
               <Tab label="Add Blog" LinkComponent={Link} to="/blogs/add" />
-              <Tab label="Profile" LinkComponent={Link} to="/user/1" />
+              <Tab label="Profile" LinkComponent={Link} to={`/user/${id}`} />
             </Tabs>
           </Box>
         )}
