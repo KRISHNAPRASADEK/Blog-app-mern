@@ -8,3 +8,7 @@ body{
 .MuiBox-root{
   background-color: #fff;
 }
+
+.css-vs7y7i-MuiPaper-root-MuiAlert-root .MuiAlert-icon{
+  color:white !important;
+}

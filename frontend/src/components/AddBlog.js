@@ -46,9 +46,13 @@ const AddBlog = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(inputs);
-    sendRequest()
-      .then((data) => console.log(data))
-      .then(() => navigate("/myBlogs"));
+    if (inputs.title && inputs.description && inputs.imageURL) {
+      sendRequest()
+        .then((data) => console.log(data))
+        .then(() => navigate("/myBlogs"));
+    } else {
+      alert("Invalid Inputs");
+    }
   };
   return (
     <div>

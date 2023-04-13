@@ -10,7 +10,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { authActions } from "../store";
+import { authActions, linkValueActions } from "../store";
 import { isSignupActions } from "../store";
 import { useForm } from "react-hook-form";
 
@@ -49,7 +49,10 @@ const Auth = () => {
           console.log(data.user._id);
           localStorage.setItem("userId", data.user._id);
         })
-        .then(() => dispatch(authActions.login()))
+        .then(() => {
+          dispatch(authActions.login());
+          dispatch(linkValueActions.allBlog());
+        })
         .then(() => navigate("/"))
         .then(() => {
           reset();
@@ -63,7 +66,10 @@ const Auth = () => {
           setLoading(false);
           localStorage.setItem("userId", data.user._id);
         })
-        .then(() => dispatch(authActions.login()))
+        .then(() => {
+          dispatch(authActions.login());
+          dispatch(linkValueActions.allBlog());
+        })
         .then(() => navigate("/"))
         .then(() => {
           reset();
@@ -122,7 +128,7 @@ const Auth = () => {
               name="name"
               {...register("name", {
                 required: true,
-                maxLength: 10,
+                maxLength: 15,
                 minLength: 4,
                 pattern: /^([a-zA-Z]*)$/,
               })}

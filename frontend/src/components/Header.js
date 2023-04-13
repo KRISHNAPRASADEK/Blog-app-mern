@@ -1,5 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, Box, Button, Toolbar, Tabs, Tab } from "@mui/material";
+import {
+  AppBar,
+  Box,
+  Button,
+  Toolbar,
+  Tabs,
+  Tab,
+  IconButton,
+  Menu,
+  MenuItem,
+  Typography,
+} from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -8,17 +19,39 @@ import {
   isSignupActions,
   linkValueActions,
 } from "../store";
+import MenuIcon from "@mui/icons-material/Menu";
 
 const Header = () => {
+  const [anchorElNav, setAnchorElNav] = React.useState(null);
+
+  const handleOpenNavMenu = (event) => {
+    setAnchorElNav(event.currentTarget);
+  };
+
+  const handleCloseNavMenu = () => {
+    setAnchorElNav(null);
+  };
+
   const dispatch = useDispatch();
   const [value, setvalue] = useState(0);
   const [id, setId] = useState();
+  const pages = [
+    { label: "All Blogs", to: "/" },
+    { label: "My Blogs", to: "/myBlogs" },
+    { label: "Add Blog", to: "/blogs/add" },
+    { label: "Profile", to: `/user/${id}` },
+  ];
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
+  const isDelete = useSelector((state) => state.delete.isDelete);
 
   const val = useSelector((state) => state.link.value);
   const { pathname } = useLocation();
 
   useEffect(() => {
+    TabChangeOnPathChange();
+  }, [pathname]);
+
+  const TabChangeOnPathChange = () => {
     if (pathname.includes("myBlogs")) {
       dispatch(linkValueActions.myBlog());
     } else if (pathname.includes("blogs/add")) {
@@ -27,9 +60,8 @@ const Header = () => {
       dispatch(linkValueActions.allBlog());
     } else if (pathname.includes("user")) {
       dispatch(linkValueActions.profile());
-      setvalue(3);
     }
-  }, [pathname]);
+  };
 
   useEffect(() => {
     setvalue(val);
@@ -46,13 +78,80 @@ const Header = () => {
   useEffect(() => {
     if (localStorage.getItem("userId")) {
       setId(localStorage.getItem("userId"));
+      TabChangeOnPathChange();
     }
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    TabChangeOnPathChange();
+  }, [isDelete]);
 
   return (
     <AppBar position="fixed" sx={{ background: "#6495ED" }}>
       <Toolbar>
-        <Button variant="text" LinkComponent={Link} to="/">
+        <Button
+          variant="text"
+          LinkComponent={Link}
+          to="/"
+          sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
+        >
+          <h1 id="logo">CODER's Blogs</h1>
+        </Button>
+        {isLoggedIn && (
+          <Box
+            sx={{
+              background: "#6495ED",
+              display: { xs: "flex", md: "none" },
+            }}
+          >
+            <IconButton
+              size="large"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleOpenNavMenu}
+              color="inherit"
+            >
+              <MenuIcon />
+            </IconButton>
+            <Menu
+              id="menu-appbar"
+              anchorEl={anchorElNav}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              keepMounted
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+              open={Boolean(anchorElNav)}
+              onClose={handleCloseNavMenu}
+              sx={{
+                display: { xs: "block", md: "none" },
+              }}
+            >
+              {pages.map((page) => (
+                <MenuItem
+                  key={page.label}
+                  onClick={handleCloseNavMenu}
+                  component={Link}
+                  to={page.to}
+                >
+                  <Typography textAlign="center">{page.label}</Typography>
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+        )}
+
+        <Button
+          variant="text"
+          LinkComponent={Link}
+          to="/"
+          sx={{ display: { xs: "flex", md: "none" }, flexGrow: 1, mr: 1 }}
+        >
           <h1 id="logo">CODER's Blogs</h1>
         </Button>
         {isLoggedIn && (
@@ -65,6 +164,7 @@ const Header = () => {
             <Tabs
               textColor="inherit"
               value={value}
+              sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}
               onChange={(e, val) => {
                 setvalue(val);
               }}

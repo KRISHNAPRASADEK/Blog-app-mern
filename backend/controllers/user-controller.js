@@ -112,6 +112,69 @@ export const followUser = async (req, res, next) => {
   }
 };
 
+export const unFollowUser = async (req, res, next) => {
+  const userId = req.params.id;
+  const { followerId } = req.body;
+  let user;
+
+  try {
+    user = await User.findByIdAndUpdate(
+      userId,
+      {
+        $pull: { followers: followerId },
+      },
+      { safe: true, upsert: true }
+    ).populate("followers");
+  } catch (error) {
+    return console.log(error);
+  }
+
+  if (!user) {
+    return res.status(500).json({ message: "unable to unfollow the user" });
+  } else {
+    try {
+      user = await User.findByIdAndUpdate(
+        followerId,
+        {
+          $pull: { following: userId },
+        },
+        { safe: true, upsert: true }
+      ).populate("following");
+    } catch (error) {
+      return console.log(error);
+    }
+
+    if (!user) {
+      return res.status(500).json({ message: "unable to unfollow the user" });
+    } else {
+      return res.status(200).json({ message: "unfollowed successfully", user });
+    }
+  }
+};
+
+export const updateUserProfile = async (req, res, next) => {
+  const userId = req.params.id;
+  const { name, description } = req.body;
+  let user;
+
+  try {
+    user = await User.findByIdAndUpdate(userId, {
+      name,
+      description,
+    });
+  } catch (error) {
+    return console.log(error);
+  }
+
+  if (!user) {
+    return res
+      .status(500)
+      .json({ message: "unable to update the your profile" });
+  } else {
+    return res.status(200).json({ message: "profile updated successfully" });
+  }
+};
+
 export const getUserById = async (req, res, next) => {
   const userId = req.params.id;
 

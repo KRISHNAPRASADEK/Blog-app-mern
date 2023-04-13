@@ -11,9 +11,6 @@ import {
   Collapse,
   Container,
   Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
   DialogTitle,
   IconButton,
   List,
@@ -21,21 +18,19 @@ import {
   ListItemAvatar,
   ListItemButton,
   ListItemText,
-  Stack,
   Typography,
 } from "@mui/material";
 import { blue } from "@mui/material/colors";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import ShareIcon from "@mui/icons-material/Share";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteSliceActions, linkValueActions } from "../store";
+import { deleteSliceActions } from "../store";
 
 const Blog = ({
   title,
@@ -44,6 +39,7 @@ const Blog = ({
   userName,
   isUser,
   id,
+  userId,
   date,
   likes,
 }) => {
@@ -81,6 +77,7 @@ const Blog = ({
     navigate(`/user/${id}`);
     dispatch(deleteSliceActions.delete());
   };
+
   const deleteRequest = async () => {
     const res = await axios
       .delete(`http://localhost:5000/api/blog/${id}`)
@@ -149,6 +146,7 @@ const Blog = ({
           width: "70%",
           margin: "auto",
           mt: 2,
+          mb: 2,
           padding: 2,
           boxShadow: "5px 5px 10px #ccc",
           ":hover": {
@@ -158,9 +156,19 @@ const Blog = ({
       >
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: blue[500] }} aria-label="recipe">
-              {userName.charAt(0).toUpperCase()}
-            </Avatar>
+            isUser ? (
+              <Avatar sx={{ bgcolor: blue[500] }} aria-label="recipe">
+                {userName.charAt(0).toUpperCase()}
+              </Avatar>
+            ) : (
+              <Avatar
+                sx={{ bgcolor: blue[500], cursor: "pointer" }}
+                aria-label="recipe"
+                onClick={() => viewUser(userId)}
+              >
+                {userName.charAt(0).toUpperCase()}
+              </Avatar>
+            )
           }
           action={
             isUser && (
@@ -257,7 +265,15 @@ const Blog = ({
                               {user.name.charAt(0).toUpperCase()}
                             </Avatar>
                           </ListItemAvatar>
-                          <ListItemText primary={user.name} />
+                          <ListItemText
+                            primary={
+                              user._id === localStorage.getItem("userId") ? (
+                                <span style={{ color: "darkblue" }}>You</span>
+                              ) : (
+                                user.name
+                              )
+                            }
+                          />
                         </ListItemButton>
                       </ListItem>
                     ))}
