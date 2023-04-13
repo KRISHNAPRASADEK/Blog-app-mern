@@ -5,8 +5,9 @@ This is MERN Stack Social Media Application for posting blogs by creating your o
 Technologies used React JS, Node JS, Express JS, MongoDB.
 <br/>
 
-
-[<img src="https://i.ytimg.com/vi/Hc79sDi3f0U/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=Hc79sDi3f0U "Now in Android: 55")
+<a href="https://www.youtube.com/watch?v=ckNBsmBKYkA">Click to watch output on youtube</a>
+<br/>
+[<img src="https://i.ibb.co/C0WqGnV/Screenshot-5.png" width="70%">](https://www.youtube.com/watch?v=ckNBsmBKYkA "Click here to watch output")
 <br/>
 
 
