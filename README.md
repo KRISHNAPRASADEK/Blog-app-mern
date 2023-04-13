@@ -2,7 +2,7 @@
 
 This is MERN Stack Social Media Application for posting blogs by creating your own user account.
 <br/>
-Technologies used React JS, Node JS, Express JS, MongoDB.
+Technologies used React JS, Node JS, Express JS, MongoDB, Material UI
 <br/>
 
 <a href="https://www.youtube.com/watch?v=ckNBsmBKYkA">Click to watch output on youtube</a>
@@ -25,3 +25,4 @@ Features:
 - In backend established relationship between two collections in MongoDB
 - Used Redux, Redux Toolkit for states management
 - Axios used for api requests in front end
+- Responsive web application
