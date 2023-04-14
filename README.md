@@ -13,7 +13,7 @@ Technologies used React JS, Node JS, Express JS, MongoDB, Material UI
 
 Features:
 
-- User Signup, login with form validaton
+- User Signup, login with form validation
 - Blog posting with title,image,description
 - can see the profile of each bloggers
 - profile contains no of blogs, followers, following, total likes, also blog posts
