@@ -7,7 +7,7 @@ Technologies used React JS, Node JS, Express JS, MongoDB, Material UI
 
 <a href="https://www.youtube.com/watch?v=ckNBsmBKYkA">Click to watch output on youtube</a>
 <br/>
-[<img src="https://i.ibb.co/C0WqGnV/Screenshot-5.png" width="70%">](https://www.youtube.com/watch?v=ckNBsmBKYkA "Click here to watch output")
+[<img src="https://i.ibb.co/NxxmBhz/Screenshot-6.png" width="70%">](https://www.youtube.com/watch?v=YDMC5CoAI_g "Click here to watch output")
 <br/>
 
 
